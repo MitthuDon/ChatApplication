@@ -10,6 +10,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
+
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 
@@ -21,17 +22,16 @@ public class WebSocketEventListener {
     private final SimpMessageSendingOperations messageTemplate;
 
     @EventListener
-    public void disconnectedUser(SessionDisconnectEvent disconnectEvent){
+    public void disconnectedUser(SessionDisconnectEvent disconnectEvent) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(disconnectEvent.getMessage());
-        String user = headerAccessor.getSessionAttributes().get("user").toString();
-        if(user!=null){
-            log.info("User Disconnected: {}",user);
+        String user = headerAccessor.getSessionAttributes().get("username").toString();
+        if (user != null) {
+            log.info("User Disconnected: {}", user);
             var chatMessage = ChatMessage.builder()
                     .sender(user)
                     .type(MessageType.LEFT)
                     .build();
-            messageTemplate.convertAndSend( "/topic/public",chatMessage);
+            messageTemplate.convertAndSend("/topic/public", chatMessage);
         }
-
     }
 }
